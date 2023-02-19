@@ -12,7 +12,7 @@ from scipy.optimize import least_squares
 from .panda_param import PandaParametrized, sample
 
 
-def make_residual(num_samples: int) -> Callable[[np.ndarray], np.ndarray]:
+def make_residual(num_samples: int, lib_path: str) -> Callable[[np.ndarray], np.ndarray]:
   """
   Create a residual function for least squares optimization
   that uses `num_samples` samples.
@@ -38,7 +38,7 @@ def make_residual(num_samples: int) -> Callable[[np.ndarray], np.ndarray]:
     I = params[28:].reshape((7, 6))
     I_indices = np.tril_indices(7)
 
-    model = panda_model.Model(os.environ.get('PANDA_MODEL_PATH'))
+    model = panda_model.Model(lib_path)
     r = PandaParametrized(m, c, I)
 
     mass_res = []
@@ -100,7 +100,15 @@ def run():
   upper_bounds[7:] = .15  # distance of com from joint axis <= 15cm
   upper_bounds[28:] = 1  # inertia elements < 1
 
-  res = least_squares(make_residual(args.n), (upper_bounds - lower_bounds) / 2,
+  x0 = np.random.uniform(lower_bounds, upper_bounds)
+
+  libfranka = os.environ.get('PANDA_MODEL_PATH')
+  if libfranka is None:
+    raise RuntimeError('Please set environment variable PANDA_MODEL_PATH ' +
+                       'to the shared library downloaded with panda-model.')
+
+  res = least_squares(make_residual(args.n, libfranka),
+                      x0,
                       bounds=(lower_bounds, upper_bounds),
                       verbose=2,
                       max_nfev=args.max_nfev)
