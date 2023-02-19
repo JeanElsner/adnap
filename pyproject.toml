@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adnap"
+description = "Reverse engineer the Panda dynamics model."
+version = "0.0.1"
+requires-python = ">=3.7"
+authors = [
+    { name = "Jean Elsner", email = "jean.elsner@tum.de" },
+]
+dependencies = [
+  'panda-model'
+]
+license = {file = "LICENSE"}
+readme = "README.md"
+keywords = ["python", "robotics", "panda", "libfranka", "dynamics", "franka", "emika", "jacobian", "model", "control", "simulation", "robot-manipulator"]
+
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Topic :: Scientific/Engineering",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+]
+
+[project.urls]
+homepage = "https://github.com/JeanElsner/adnap"
+documentation = "https://adnap.readthedocs.io"
+repository = "https://github.com/JeanElsner/adnap"
