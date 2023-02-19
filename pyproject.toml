@@ -11,7 +11,12 @@ authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
 ]
 dependencies = [
-  'panda-model'
+  'panda-model',
+  'scipy',
+  'numpy',
+  'sympy',
+  'spatialmath-python',
+  'roboticstoolbox-python',
 ]
 license = {file = "LICENSE"}
 readme = "README.md"
