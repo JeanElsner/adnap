@@ -1,0 +1,107 @@
+"""
+Optimize dynamic parmeters to match libfranka dynamics.
+"""
+import argparse
+import os
+from typing import Callable
+
+import numpy as np
+import panda_model
+from scipy.optimize import least_squares
+
+from .panda_param import PandaParametrized, sample
+
+
+def make_residual(num_samples: int) -> Callable[[np.ndarray], np.ndarray]:
+  """
+  Create a residual function for least squares optimization
+  that uses `num_samples` samples.
+
+  Returns:
+    Function that maps 70 physical parameters to residual model errors
+    with shape (20,).
+  """
+  q_data, dq_data, __ = sample(num_samples)
+
+  def residual(params):
+    """
+    Computes residuals for least square optimizaiton.
+
+    Args:
+      params: Flattened parameters of shape (70,).
+
+    Returns:
+      numpy.ndarray: Residuals of shape (20,).
+    """
+    m = params[:7]
+    c = params[7:28].reshape((7, 3))
+    I = params[28:].reshape((7, 6))
+    I_indices = np.tril_indices(7)
+
+    model = panda_model.Model(os.environ.get('PANDA_MODEL_PATH'))
+    r = PandaParametrized(m, c, I)
+
+    mass_res = []
+    coriolis_res = []
+    gravity_res = []
+
+    for i in range(num_samples):
+
+      mass_res.append(
+          model.mass(q_data[i], np.zeros((3, 3)), 0, np.zeros(3))[I_indices] -
+          r.inertia(q_data[i])[I_indices])
+      coriolis_res.append(
+          model.coriolis(q_data[i], dq_data[i], np.zeros((3,
+                                                          3)), 0, np.zeros(3)) -
+          r.coriolis(q_data[i], dq_data[i]) @ dq_data[i])
+      gravity_res.append(
+          model.gravity(q_data[i], 0, np.zeros(3)) - r.gravload(q_data[i]))
+
+    return np.concatenate(
+        (np.array(mass_res).flatten(), np.array(coriolis_res).flatten(),
+         np.array(gravity_res).flatten()))
+
+  return residual
+
+
+def run():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-n',
+                      help="Number of samples used in residual.",
+                      default=10,
+                      type=int)
+  parser.add_argument('--max-nfev',
+                      help='Maximum number of function evaluations.',
+                      type=int,
+                      default=None)
+  parser.add_argument('-o',
+                      '--output',
+                      help='Outpuf file to write parameters into',
+                      type=str,
+                      required=True)
+  args = parser.parse_args()
+
+  lower_bounds = np.zeros(70)
+  lower_bounds[:7] = 0  # mass > 0kg
+  lower_bounds[7:] = -.15  # distance of com from joint axis <= 15cm
+  lower_bounds[28:] = -1  # inertia elements > -1
+
+  # diagonal inertia elements > 0
+  lower_bounds[28:31] = 0
+  lower_bounds[34:37] = 0
+  lower_bounds[40:43] = 0
+  lower_bounds[46:49] = 0
+  lower_bounds[52:53] = 0
+  lower_bounds[58:61] = 0
+  lower_bounds[64:67] = 0
+
+  upper_bounds = np.zeros(70)
+  upper_bounds[:7] = 10  # mass < 10kg
+  upper_bounds[7:] = .15  # distance of com from joint axis <= 15cm
+  upper_bounds[28:] = 1  # inertia elements < 1
+
+  res = least_squares(make_residual(args.n), (upper_bounds - lower_bounds) / 2,
+                      bounds=(lower_bounds, upper_bounds),
+                      verbose=2,
+                      max_nfev=args.max_nfev)
+  print(res)

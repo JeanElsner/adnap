@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "adnap"
 description = "Reverse engineer the Panda dynamics model."
-version = "0.0.1"
+version = "0.1.0"
 requires-python = ">=3.7"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
@@ -33,3 +33,6 @@ classifiers = [
 homepage = "https://github.com/JeanElsner/adnap"
 documentation = "https://adnap.readthedocs.io"
 repository = "https://github.com/JeanElsner/adnap"
+
+[project.scripts]
+adnap-optimize = "adnap.optimize:run"
