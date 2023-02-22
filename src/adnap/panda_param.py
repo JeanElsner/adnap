@@ -2,8 +2,8 @@
 Parameterized version of the Panda robot.
 """
 import numpy as np
-from spatialmath import base
 from roboticstoolbox import DHRobot, RevoluteMDH
+from spatialmath import base
 
 q_min = [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
 q_max = [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973]
@@ -44,6 +44,13 @@ def create_inertia_symbols(idx: int):
   """
   return base.symbol(
       f'I_{idx}xx,I_{idx}yy,I_{idx}zz,I_{idx}xy,I_{idx}yz,I_{idx}xz')
+
+
+def unflatten_params(params: np.ndarray):
+  m = params[:7]
+  c = params[7:28].reshape((7, 3))
+  I = params[28:].reshape((7, 6))
+  return m, c, I
 
 
 class PandaParametrized(DHRobot):

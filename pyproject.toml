@@ -41,3 +41,4 @@ repository = "https://github.com/JeanElsner/adnap"
 
 [project.scripts]
 adnap-optimize = "adnap.optimize:run"
+adnap-evaluate = "adnap.evaluate:run"

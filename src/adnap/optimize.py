@@ -12,7 +12,26 @@ from scipy.optimize import least_squares
 from .panda_param import PandaParametrized, sample
 
 
-def make_residual(num_samples: int, lib_path: str) -> Callable[[np.ndarray], np.ndarray]:
+def coriolis_error(model: panda_model.Model, opt_model: PandaParametrized,
+                   q_data: np.ndarray, dq_data: np.ndarray):
+  return opt_model.coriolis(q_data, dq_data) @ dq_data - model.coriolis(
+      q_data, dq_data, np.zeros((3, 3)), 0, np.zeros(3))
+
+
+def mass_error(model: panda_model.Model, opt_model: PandaParametrized,
+               q_data: np.ndarray):
+  I_indices = np.tril_indices(7)
+  return model.mass(q_data, np.zeros(
+      (3, 3)), 0, np.zeros(3))[I_indices] - opt_model.inertia(q_data)[I_indices]
+
+
+def gravity_error(model: panda_model.Model, opt_model: PandaParametrized,
+                  q_data: np.ndarray):
+  return opt_model.gravload(q_data) - model.gravity(q_data, 0, np.zeros(3))
+
+
+def make_residual(num_samples: int,
+                  lib_path: str) -> Callable[[np.ndarray], np.ndarray]:
   """
   Create a residual function for least squares optimization
   that uses `num_samples` samples.
@@ -36,7 +55,6 @@ def make_residual(num_samples: int, lib_path: str) -> Callable[[np.ndarray], np.
     m = params[:7]
     c = params[7:28].reshape((7, 3))
     I = params[28:].reshape((7, 6))
-    I_indices = np.tril_indices(7)
 
     model = panda_model.Model(lib_path)
     r = PandaParametrized(m, c, I)
@@ -46,16 +64,9 @@ def make_residual(num_samples: int, lib_path: str) -> Callable[[np.ndarray], np.
     gravity_res = []
 
     for i in range(num_samples):
-
-      mass_res.append(
-          model.mass(q_data[i], np.zeros((3, 3)), 0, np.zeros(3))[I_indices] -
-          r.inertia(q_data[i])[I_indices])
-      coriolis_res.append(
-          model.coriolis(q_data[i], dq_data[i], np.zeros((3,
-                                                          3)), 0, np.zeros(3)) -
-          r.coriolis(q_data[i], dq_data[i]) @ dq_data[i])
-      gravity_res.append(
-          model.gravity(q_data[i], 0, np.zeros(3)) - r.gravload(q_data[i]))
+      mass_res.append(mass_error(model, r, q_data[i]))
+      coriolis_res.append(coriolis_error(model, r, q_data[i], dq_data[i]))
+      gravity_res.append(gravity_error(model, r, q_data[i]))
 
     return np.concatenate(
         (np.array(mass_res).flatten(), np.array(coriolis_res).flatten(),
@@ -112,4 +123,5 @@ def run():
                       bounds=(lower_bounds, upper_bounds),
                       verbose=2,
                       max_nfev=args.max_nfev)
+  np.save(args.output, res.x)
   print(res)
