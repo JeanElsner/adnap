@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: pylint-badge
-        path: pylint.svg
+        path: pylint/pylint.svg
     - name: Test with pytest
       run: |
         pytest --cov=adnap --cov-report xml:coverage.xml
