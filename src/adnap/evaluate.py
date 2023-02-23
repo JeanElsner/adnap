@@ -2,7 +2,7 @@ import argparse
 import os
 
 import numpy as np
-from panda_model import Model
+import panda_model
 
 from .optimize import coriolis_error, gravity_error, mass_error
 from .panda_param import PandaParameterized, sample, unflatten_params
@@ -27,7 +27,7 @@ def run():
   params = np.load(args.file)
   m, c, I = unflatten_params(params)
   r = PandaParameterized(m, c, I)
-  model = Model(libfranka)
+  model = panda_model.Model(libfranka)
 
   q_data, dq_data, __ = sample(args.n)
   coriolis = []

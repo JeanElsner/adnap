@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "adnap"
 description = "Reverse engineer the Panda dynamics model."
-version = "0.1.0"
+version = "0.3.0"
 requires-python = ">=3.7"
 authors = [
     { name = "Jean Elsner", email = "jean.elsner@tum.de" },
@@ -25,7 +25,7 @@ keywords = ["python", "robotics", "panda", "libfranka", "dynamics", "franka", "e
 classifiers = [
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
+        "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

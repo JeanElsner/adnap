@@ -1,9 +1,12 @@
 # ADNAP
 Reverse engineer the Panda dynamics model.
 
+![build](https://img.shields.io/github/actions/workflow/status/JeanElsner/adnap/python-test.yml)
 [![readthedocs](https://img.shields.io/readthedocs/adnap)](https://adnap.readthedocs.io/)
+[![pypi-version](https://img.shields.io/pypi/v/adnap)](https://pypi.org/project/adnap/)
 [![codecov](https://codecov.io/gh/JeanElsner/adnap/branch/main/graph/badge.svg?token=6GOKVDXZJ9)](https://codecov.io/gh/JeanElsner/adnap)
 [![pylint](https://jeanelsner.github.io/adnap/pylint.svg)](https://jeanelsner.github.io/adnap/pylint.log)
+[![pypi](https://img.shields.io/pypi/pyversions/adnap)](https://pypi.org/project/adnap/)
 
 ## Install
 ```
