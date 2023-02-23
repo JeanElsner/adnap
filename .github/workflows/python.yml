@@ -20,8 +20,8 @@ jobs:
     steps:
     - name: Set up Linux
       run: >
-        apt-get update -q &&
-        apt-get install --no-install-recommends --quiet --yes
+        sudo apt-get update -q &&
+        sudo apt-get install --no-install-recommends --quiet --yes
         libpoco-dev
         libeigen3-dev
     - uses: actions/checkout@v3
