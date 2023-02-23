@@ -8,7 +8,7 @@ from adnap import evaluate
 class testEvaluate(unittest.TestCase):
 
   @mock.patch('argparse.ArgumentParser.parse_args',
-              return_value=Namespace(file='params.npy', n=1))
+              return_value=Namespace(file='tests/params.npy', n=1))
   @mock.patch('os.environ.get', return_value='TEST')
   @mock.patch('panda_model.Model')
   def test_run(self, Model, *args):
