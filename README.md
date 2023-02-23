@@ -3,7 +3,7 @@ Reverse engineer the Panda dynamics model.
 
 [![readthedocs](https://img.shields.io/readthedocs/adnap)](https://adnap.readthedocs.io/)
 [![codecov](https://codecov.io/gh/JeanElsner/adnap/branch/main/graph/badge.svg?token=6GOKVDXZJ9)](https://codecov.io/gh/JeanElsner/adnap)
-![pylint](https://jeanelsner.github.io/adnap/pylint.svg)
+[![pylint](https://jeanelsner.github.io/adnap/pylint.svg)](https://jeanelsner.github.io/adnap/pylint.log)
 
 ## Install
 ```
