@@ -41,6 +41,7 @@ test = [
     "pylint-exit",
     "pytest",
     "pytest-cov",
+    "anybadge",
 ]
 
 [project.urls]
