@@ -17,7 +17,7 @@ def sample(num: int):
 
   Args:
     n: Number of samples to draw.
-  
+
   Returns:
     Tuple consisting of
 
@@ -47,6 +47,11 @@ def create_inertia_symbols(idx: int):
 
 
 def unflatten_params(params: np.ndarray):
+  """
+  Map physical parameters of shape (70,) as returned by the optimizer
+  onto a three-tuple consisting of mass (7,), center of mass (7,3)
+  and Inertia (7,6).
+  """
   m = params[:7]
   c = params[7:28].reshape((7, 3))
   I = params[28:].reshape((7, 6))
@@ -81,7 +86,7 @@ class PandaParameterized(DHRobot):
 
     # This Panda model is defined using modified
     # Denavit-Hartenberg parameters
-    L = [
+    links = [
         RevoluteMDH(
             a=0.0,
             d=0.333,
@@ -156,19 +161,17 @@ class PandaParameterized(DHRobot):
 
     tool = base.transl(0, 0, tool_offset) @ base.trotz(-pi / 4)
 
-    super().__init__(L,
+    super().__init__(links,
                      name="Panda",
                      manufacturer="Franka Emika",
                      meshdir="meshes/FRANKA-EMIKA/Panda",
                      tool=tool,
                      **kwargs)
 
-    self.qr = np.array(
+    self.q_ready = np.array(
         [0, -np.pi / 4, 0, -3 * np.pi / 4, 0, np.pi / 2, np.pi / 4])
-    self.qz = np.zeros(7)
 
-    self.addconfiguration("qr", self.qr)
-    self.addconfiguration("qz", self.qz)
+    self.addconfiguration("qr", self.q_ready)
 
 
 def create_sym_panda() -> PandaParameterized:

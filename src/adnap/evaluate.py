@@ -1,3 +1,6 @@
+"""
+Evaluate dynamic parmeters against libfranka dynamics.
+"""
 import argparse
 import os
 
@@ -9,6 +12,10 @@ from .panda_param import PandaParameterized, sample, unflatten_params
 
 
 def run():
+  """
+  Evaluate physical parameters from a file against model from libfranka
+  shared library on random samples drawn from the robot's state space.
+  """
   parser = argparse.ArgumentParser()
   parser.add_argument('-n',
                       help="Number of samples used in evaluation.",
@@ -24,9 +31,8 @@ def run():
     raise RuntimeError('Please set environment variable PANDA_MODEL_PATH ' +
                        'to the shared library downloaded with panda-model.')
 
-  params = np.load(args.file)
-  m, c, I = unflatten_params(params)
-  r = PandaParameterized(m, c, I)
+  m, c, I = unflatten_params(np.load(args.file))
+  opt_model = PandaParameterized(m, c, I)
   model = panda_model.Model(libfranka)
 
   q_data, dq_data, __ = sample(args.n)
@@ -34,9 +40,10 @@ def run():
   mass = []
   gravity = []
   for i in range(args.n):
-    coriolis.append(np.abs(coriolis_error(model, r, q_data[i], dq_data[i])))
-    mass.append(np.abs(mass_error(model, r, q_data[i])))
-    gravity.append(np.abs(gravity_error(model, r, q_data[i])))
+    coriolis.append(
+        np.abs(coriolis_error(model, opt_model, q_data[i], dq_data[i])))
+    mass.append(np.abs(mass_error(model, opt_model, q_data[i])))
+    gravity.append(np.abs(gravity_error(model, opt_model, q_data[i])))
 
   print('inertia_error:', np.mean(np.array(mass).flatten(), axis=0))
   print('coriolis_error:', np.mean(np.array(coriolis).flatten(), axis=0))

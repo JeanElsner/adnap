@@ -14,19 +14,31 @@ from .panda_param import PandaParameterized, sample
 
 def coriolis_error(model: panda_model.Model, opt_model: PandaParameterized,
                    q_data: np.ndarray, dq_data: np.ndarray):
+  """
+  Computes model error in coriolis term.
+  """
   return opt_model.coriolis(q_data, dq_data) @ dq_data - model.coriolis(
       q_data, dq_data, np.zeros((3, 3)), 0, np.zeros(3))
 
 
+inertia_idx = np.tril_indices(7)
+
+
 def mass_error(model: panda_model.Model, opt_model: PandaParameterized,
                q_data: np.ndarray):
-  I_indices = np.tril_indices(7)
-  return model.mass(q_data, np.zeros(
-      (3, 3)), 0, np.zeros(3))[I_indices] - opt_model.inertia(q_data)[I_indices]
+  """
+  Computes model error in inertia matrix.
+  """
+  return model.mass(
+      q_data, np.zeros((3, 3)), 0,
+      np.zeros(3))[inertia_idx] - opt_model.inertia(q_data)[inertia_idx]
 
 
 def gravity_error(model: panda_model.Model, opt_model: PandaParameterized,
                   q_data: np.ndarray):
+  """
+  Computes model error in the gravity term.
+  """
   return opt_model.gravload(q_data) - model.gravity(q_data, 0, np.zeros(3))
 
 
@@ -57,16 +69,17 @@ def make_residual(num_samples: int,
     I = params[28:].reshape((7, 6))
 
     model = panda_model.Model(lib_path)
-    r = PandaParameterized(m, c, I)
+    opt_model = PandaParameterized(m, c, I)
 
     mass_res = []
     coriolis_res = []
     gravity_res = []
 
     for i in range(num_samples):
-      mass_res.append(mass_error(model, r, q_data[i]))
-      coriolis_res.append(coriolis_error(model, r, q_data[i], dq_data[i]))
-      gravity_res.append(gravity_error(model, r, q_data[i]))
+      mass_res.append(mass_error(model, opt_model, q_data[i]))
+      coriolis_res.append(
+          coriolis_error(model, opt_model, q_data[i], dq_data[i]))
+      gravity_res.append(gravity_error(model, opt_model, q_data[i]))
 
     return np.concatenate(
         (np.array(mass_res).flatten(), np.array(coriolis_res).flatten(),
@@ -76,6 +89,9 @@ def make_residual(num_samples: int,
 
 
 def run():
+  """
+  Entrypoint to run optimization with random initialization.
+  """
   parser = argparse.ArgumentParser()
   parser.add_argument('-n',
                       help="Number of samples used in residual.",
@@ -111,7 +127,7 @@ def run():
   upper_bounds[7:] = .15  # distance of com from joint axis <= 15cm
   upper_bounds[28:] = 1  # inertia elements < 1
 
-  x0 = np.random.uniform(lower_bounds, upper_bounds)
+  x_start = np.random.uniform(lower_bounds, upper_bounds)
 
   libfranka = os.environ.get('PANDA_MODEL_PATH')
   if libfranka is None:
@@ -119,7 +135,7 @@ def run():
                        'to the shared library downloaded with panda-model.')
 
   res = least_squares(make_residual(args.n, libfranka),
-                      x0,
+                      x_start,
                       bounds=(lower_bounds, upper_bounds),
                       verbose=2,
                       max_nfev=args.max_nfev)
