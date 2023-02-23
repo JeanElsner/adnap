@@ -9,23 +9,23 @@ import numpy as np
 import panda_model
 from scipy.optimize import least_squares
 
-from .panda_param import PandaParametrized, sample
+from .panda_param import PandaParameterized, sample
 
 
-def coriolis_error(model: panda_model.Model, opt_model: PandaParametrized,
+def coriolis_error(model: panda_model.Model, opt_model: PandaParameterized,
                    q_data: np.ndarray, dq_data: np.ndarray):
   return opt_model.coriolis(q_data, dq_data) @ dq_data - model.coriolis(
       q_data, dq_data, np.zeros((3, 3)), 0, np.zeros(3))
 
 
-def mass_error(model: panda_model.Model, opt_model: PandaParametrized,
+def mass_error(model: panda_model.Model, opt_model: PandaParameterized,
                q_data: np.ndarray):
   I_indices = np.tril_indices(7)
   return model.mass(q_data, np.zeros(
       (3, 3)), 0, np.zeros(3))[I_indices] - opt_model.inertia(q_data)[I_indices]
 
 
-def gravity_error(model: panda_model.Model, opt_model: PandaParametrized,
+def gravity_error(model: panda_model.Model, opt_model: PandaParameterized,
                   q_data: np.ndarray):
   return opt_model.gravload(q_data) - model.gravity(q_data, 0, np.zeros(3))
 
@@ -57,7 +57,7 @@ def make_residual(num_samples: int,
     I = params[28:].reshape((7, 6))
 
     model = panda_model.Model(lib_path)
-    r = PandaParametrized(m, c, I)
+    r = PandaParameterized(m, c, I)
 
     mass_res = []
     coriolis_res = []

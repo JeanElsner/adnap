@@ -53,7 +53,7 @@ def unflatten_params(params: np.ndarray):
   return m, c, I
 
 
-class PandaParametrized(DHRobot):
+class PandaParameterized(DHRobot):
   """
   DH version of the Panda robot parameterized in the
   dynamic physical parameters.
@@ -171,7 +171,7 @@ class PandaParametrized(DHRobot):
     self.addconfiguration("qz", self.qz)
 
 
-def create_sym_panda() -> PandaParametrized:
+def create_sym_panda() -> PandaParameterized:
   """
   Create symbolic version of parameterized Panda.
   """
@@ -182,4 +182,4 @@ def create_sym_panda() -> PandaParametrized:
     I.append(create_inertia_symbols(i + 1))
     c.append(create_com_symbols(i + 1))
 
-  return PandaParametrized(m, c, I, symbolic=True)
+  return PandaParameterized(m, c, I, symbolic=True)
