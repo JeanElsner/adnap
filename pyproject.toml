@@ -38,6 +38,7 @@ classifiers = [
 
 test = [
     "pylint",
+    "pylint-exit",
     "pytest",
     "pytest-cov",
 ]

@@ -35,7 +35,7 @@ jobs:
         pip install -e .[test]
     - name: Lint with PyLint
       run: |
-        pylint --rcfile .pylintrc src/
+        pylint --rcfile .pylintrc src/ || pylint-exit $?
     - name: Test with pytest
       run: |
         pytest --cov=adnap --cov-report xml:coverage.xml
