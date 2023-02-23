@@ -9,14 +9,18 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
-
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-
     steps:
     - name: Set up Linux
       run: >
@@ -40,11 +44,6 @@ jobs:
         PYLINT_SCORE=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' ./pylint/pylint.log)
         anybadge --label=Pylint --file=pylint/pylint.svg --value=$PYLINT_SCORE 2=red 4=orange 8=yellow 10=green
         echo "Pylint score is $PYLINT_SCORE"
-    - name: Upload PyLint badge
-      uses: actions/upload-artifact@v2
-      with:
-        name: pylint-badge
-        path: pylint/pylint.svg
     - name: Test with pytest
       run: |
         pytest --cov=adnap --cov-report xml:coverage.xml
@@ -54,3 +53,13 @@ jobs:
       with:
         file: ./coverage.xml
         token: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          file: 'pylint/pylint.svg'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
