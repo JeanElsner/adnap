@@ -6,8 +6,8 @@ name: Publish Docker Container
 # documentation.
 
 on:
-  schedule:
-    - cron: '33 15 * * *'
+#  schedule:
+#    - cron: '33 15 * * *'
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
