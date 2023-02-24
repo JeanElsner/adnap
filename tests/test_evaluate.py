@@ -20,3 +20,8 @@ class testEvaluate(unittest.TestCase):
     Model.return_value.mass.assert_called_once()
     Model.return_value.coriolis.assert_called_once()
     Model.return_value.gravity.assert_called_once()
+
+  @mock.patch('argparse.ArgumentParser.parse_args',
+              return_value=Namespace(file='tests/params.npy', n=1))
+  def test_except(self, *args):
+    self.assertRaisesRegex(RuntimeError, 'PANDA_MODEL_PATH', evaluate.run)

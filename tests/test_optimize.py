@@ -20,3 +20,8 @@ class testOptimize(unittest.TestCase):
     Model.return_value.mass.assert_called()
     Model.return_value.coriolis.assert_called()
     Model.return_value.gravity.assert_called()
+
+  @mock.patch('argparse.ArgumentParser.parse_args',
+              return_value=Namespace(output='params.npy', n=1, max_nfev=1))
+  def test_except(self, *args):
+    self.assertRaisesRegex(RuntimeError, 'PANDA_MODEL_PATH', optimize.run)
