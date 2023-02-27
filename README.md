@@ -13,12 +13,6 @@ Reverse engineer the Panda dynamics model.
 ```
 pip install adnap
 ```
-### Requirements
-The dependency `panda-model` requires `POCO C++ libraries` and `Eigen3` to be installed. On Ubuntu install them by running:
-```
-sudo apt-get install libpoco-dev libeigen3-dev
-```
-
 ## Usage
 Point the environment variable to the libfranka shared library downloaded with [`panda-model`](https://github.com/JeanElsner/panda_model)
 ```
