@@ -4,6 +4,14 @@ adnap package
 Submodules
 ----------
 
+adnap.evaluate module
+---------------------
+
+.. automodule:: adnap.evaluate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 adnap.optimize module
 ---------------------
 
